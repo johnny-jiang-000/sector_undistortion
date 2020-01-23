@@ -4,9 +4,9 @@
 #include <cmath>
 #include <chrono>
 
-#define THREAD_NO 6
+#define THREAD_NO 4
 #define w 38400
-#define h 21600
+#define h 2160
 #define l 10800
 # define M_PI           3.14159265358979323846  /* pi */
 
@@ -14,7 +14,7 @@
 
 typedef struct _SHM{
 	float *map;
-	volatile int id;
+	int id,T,n;
 	float R,Rmin,dr,amax,da;
 }SHM;
 
@@ -22,17 +22,22 @@ void *mesh(void* ptr);
 pthread_mutex_t mutex=PTHREAD_MUTEX_INITIALIZER;
 
 int count=0;
-int n=(int)ceil((float)w/THREAD_NO);
+
 using namespace std::chrono;
 
-int main(){
-	
-	pthread_t thread[THREAD_NO];
-	int iret[THREAD_NO];
+int main(int argc,char *argv[]){	
 	int i;
 	high_resolution_clock::time_point start,end;
 	SHM data;	
-	float *map=(float*)malloc(sizeof(float)*n*THREAD_NO*h*2);	
+	data.T=THREAD_NO;
+	if(argc>1)
+		data.T=atoi(argv[1]);
+	printf("thread number=%d\n",data.T);
+	pthread_t thread[data.T];
+	
+	int iret[data.T];
+	data.n=(int)ceil((float)w/data.T);
+	float *map=(float*)malloc(sizeof(float)*data.n*data.T*h*2);	
 	data.map=map;
 		
 	data.R=sqrt((l+h)*(l+h)+(0.5*w)*(0.5*w));
@@ -48,13 +53,13 @@ int main(){
 
 
 	start=high_resolution_clock::now();
-	for(i=0;i<THREAD_NO;i++){
+	for(i=0;i<data.T;i++){
 		data.id=i;
 		iret[i]=pthread_create(thread+i,NULL,mesh,(void*)&data);
 		//printf("iret=%d, id=%d\n",iret[i],data.id);
 	}
 
-	for(i=0;i<THREAD_NO;i++)
+	for(i=0;i<data.T;i++)
 		pthread_join(thread[i],NULL);
 	end=high_resolution_clock::now();
 	
@@ -81,7 +86,7 @@ void *mesh(void* ptr){
 
 	
 	//printf("id=%d,R=%.2f\n",id,data->R);
-	for(px=n*id;px<n*(id+1);px++){
+	for(px=data->n*id;px<data->n*(id+1);px++){
 		for(py=0;py<h;py++){
 			r=data->R-data->dr*py;
 			theta=M_PI*0.5+data->amax-data->da*px;
