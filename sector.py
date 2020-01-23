@@ -4,10 +4,11 @@ import numpy as np
 import threading
 from timeit import default_timer as timer
 
-T=6
+T=4
 w=2560
 h=1080
 l=10800
+n=w/T
 
 R=np.sqrt((l+h)**2+(0.5*w)**2)
 Rmin=np.sqrt(l**2+(0.5*w)**2)
@@ -21,21 +22,45 @@ da=amax/float(0.5*w)
 map=np.zeros((h,w,2))
 out=np.zeros((h_o,w_o*2,4))
 
-start=timer()
-for px in range(w):
-    for py in range(h):
-        r=R-dr*py
-        # alpha=
-        # r=np.sqrt((px-0.5*w)**2+(h+l-py)**2)
-        # arc=2*amax*np.sqrt((l-py)**2**2+())
-        # alpha=np.arctan((px-0.5*w)/float(h+l-py))
-        theta=np.pi*0.5+amax-da*px
-        # if(alpha<0):
-        #     theta=np.pi+alpha
-        
-        map[py,px,0]=r*np.cos(theta)
-        map[py,px,1]=r*np.sin(theta)
 
+
+class mt_mesh(threading.Thread):
+	def __init__(self,id):
+		threading.Thread.__init__(self)
+		self.id=id
+	def run(self):
+		mesh(self.id)
+
+
+def mesh(id):
+	for px in range(int(n*id),int(n*(1+id))):
+		for py in range(h):
+			r=R-dr*py
+			theta=np.pi*0.5+amax-da*px
+			map[py,px,0]=r*np.cos(theta)
+			map[py,px,1]=r*np.sin(theta)
+
+def st_mesh():
+	for px in range(w):
+		for py in range(h):
+			r=R-dr*py
+			theta=np.pi*0.5+amax-da*px
+			map[py,px,0]=r*np.cos(theta)
+			map[py,px,1]=r*np.sin(theta)
+
+start=timer()
+
+#thread_no=[]
+#for i in range(T):
+#	thread_no.append(mt_mesh(i))
+
+#for t in thread_no:
+#	t.start()
+
+#for t in thread_no:
+#	t.join()
+
+st_mesh()
 end=timer()
 
 raw=mpimg.imread('2020.01.19-01.26.png')
