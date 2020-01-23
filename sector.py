@@ -4,7 +4,7 @@ import numpy as np
 import threading
 from timeit import default_timer as timer
 
-T=8
+T=6
 w=425
 h=425
 l=200
