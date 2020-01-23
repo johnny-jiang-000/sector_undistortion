@@ -18,6 +18,7 @@ h_o=int(R-l)
 amax=np.arctan((0.5*w)/float(l))
 da=amax/float(0.5*w)
 
+print("R=",R," Rmin=",Rmin," dr=",dr," amax=",amax," da=",da)
 
 map=np.zeros((h,w,2))
 out=np.zeros((h_o,w_o*2,4))
