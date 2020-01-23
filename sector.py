@@ -38,7 +38,7 @@ for px in range(w):
 
 end=timer()
 
-with cbook.get_sample_data('C://Users//autor//Desktop//py_playground//chess.png') as image_file:
+with cbook.get_sample_data('C://Users//autor//Desktop//sector_undistort//chess.png') as image_file:
     raw=plt.imread(image_file)
 
 for px in range(w):
