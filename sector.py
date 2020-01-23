@@ -1,13 +1,13 @@
 import matplotlib.pyplot as plt
-import matplotlib.cbook as cbook
+import matplotlib.image as mpimg
 import numpy as np
 import threading
 from timeit import default_timer as timer
 
 T=6
-w=425
-h=425
-l=200
+w=2560
+h=1080
+l=10800
 
 R=np.sqrt((l+h)**2+(0.5*w)**2)
 Rmin=np.sqrt(l**2+(0.5*w)**2)
@@ -38,8 +38,7 @@ for px in range(w):
 
 end=timer()
 
-with cbook.get_sample_data('C://Users//autor//Desktop//sector_undistort//chess.png') as image_file:
-    raw=plt.imread(image_file)
+raw=mpimg.imread('2020.01.19-01.26.png')
 
 for px in range(w):
     for py in range(h):
