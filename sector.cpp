@@ -1,16 +1,19 @@
+#ifdef _WIN32
+	#define HAVE_STRUCT_TIMESPEC
+#endif
 #include <pthread.h>
 #include <stdlib.h>
 #include <stdio.h>
 #include <cmath>
 #include <chrono>
 
-#define THREAD_NO 4
+#define THREAD_NO 16
 #define w 38400
-#define h 2160
+#define h 21600
 #define l 10800
-# define M_PI           3.14159265358979323846  /* pi */
+#define M_PI           3.14159265358979323846  /* pi */
 
-
+using namespace std::chrono;
 
 typedef struct _SHM{
 	float *map;
@@ -23,7 +26,6 @@ pthread_mutex_t mutex=PTHREAD_MUTEX_INITIALIZER;
 
 int count=0;
 
-using namespace std::chrono;
 
 int main(int argc,char *argv[]){	
 	int i;
@@ -33,9 +35,9 @@ int main(int argc,char *argv[]){
 	if(argc>1)
 		data.T=atoi(argv[1]);
 	printf("thread number=%d\n",data.T);
-	pthread_t thread[data.T];
+	pthread_t *thread=new pthread_t[data.T];
 	
-	int iret[data.T];
+	int *iret=new int[data.T];
 	data.n=(int)ceil((float)w/data.T);
 	float *map=(float*)malloc(sizeof(float)*data.n*data.T*h*2);	
 	data.map=map;
@@ -67,6 +69,9 @@ int main(int argc,char *argv[]){
 
 	printf("time elapse: %.2f sec\n",time_span.count());
 	printf("p0=(%.2f,%.2f),p1=(%.2f,%.2f)\n",data.map[0],data.map[1],data.map[2*w*h-2],data.map[2*w*h-1]);
+
+	delete[] thread;
+	delete[] iret;
 	return 0;
 }
 
@@ -80,8 +85,8 @@ void *mesh(void* ptr){
 	//id=data->id;
 	
 	pthread_mutex_lock(&mutex);
+	id=count;
 	++count;
-	id=count-1;
 	pthread_mutex_unlock(&mutex);
 
 	
@@ -96,6 +101,7 @@ void *mesh(void* ptr){
 			//printf("x_i=%d,x_o=%.3f,y_i=%d,y_o=%.3f\n",px,data->map[2*(py+px*h)],py,data->map[2*(py+1+px*h)]);
 		}
 	}
+	return nullptr;
 }
 
 	
