@@ -1,3 +1,3 @@
 # sector_undistortion
 目前想到的方法是用GLSL写一个vertex shader来对图像做扇形remap。像素点mapping可以放到shader里面pixel by pixel计算或者是单独算好map然后shader读取。
--clutter支持添加GLSL到渲染层。。。
+- clutter支持添加GLSL到渲染层。。。
