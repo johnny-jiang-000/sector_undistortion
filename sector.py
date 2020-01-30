@@ -64,6 +64,8 @@ start=timer()
 st_mesh()
 end=timer()
 
+print("p0=(",int(map[0,0,0]+w_o),",",int(h_o+l-map[0,0,1]),")","p1=(",int(map[h-1,w-1,0]+w_o),",",int(h_o+l-map[h-1,w-1,1]),")")
+
 raw=mpimg.imread('2020.01.19-01.26.png')
 
 for px in range(w):
