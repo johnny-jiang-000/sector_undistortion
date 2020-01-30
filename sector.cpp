@@ -17,7 +17,7 @@ using namespace std::chrono;
 
 typedef struct _SHM{
 	float *map;
-	int id,T,n;
+	int id,T,n,whalf_o,h_o;
 	float R,Rmin,dr,amax,da;
 }SHM;
 
@@ -53,6 +53,10 @@ int main(int argc,char *argv[]){
 	data.da=data.amax/(0.5*w);
 	printf("da=%.8f\n",data.da);
 
+	data.whalf_o=(int)(0.5*w*data.R/sqrt((0.5*w)*(0.5*w)+l*l));
+	data.h_o=(int)(data.R-l);
+	printf("output size=(%d,%d)\n",data.whalf_o*2,data.h_o);
+
 
 	start=high_resolution_clock::now();
 	for(i=0;i<data.T;i++){
@@ -68,7 +72,7 @@ int main(int argc,char *argv[]){
 	duration<double> time_span=duration_cast<duration<double>>(end-start);
 
 	printf("time elapse: %.2f sec\n",time_span.count());
-	printf("p0=(%.2f,%.2f),p1=(%.2f,%.2f)\n",data.map[0],data.map[1],data.map[2*w*h-2],data.map[2*w*h-1]);
+	printf("p0=(%d,%d),p1=(%d,%d)\n",(int)(data.map[0]+data.whalf_o),(int)(data.h_o+l-data.map[1]),(int)(data.map[2*w*h-2]+data.whalf_o),(int)(data.h_o+l-data.map[2*w*h-1]));
 
 	delete[] thread;
 	delete[] iret;
@@ -97,7 +101,7 @@ void *mesh(void* ptr){
 			theta=M_PI*0.5+data->amax-data->da*px;
 			//printf("r=%.3f,theta=%.3f\n",r,theta);
 			data->map[2*(py+px*h)]=r*cos(theta);
-			data->map[2*(py+1+px*h)]=r*sin(theta);
+			data->map[2*(py+px*h)+1]=r*sin(theta);
 			//printf("x_i=%d,x_o=%.3f,y_i=%d,y_o=%.3f\n",px,data->map[2*(py+px*h)],py,data->map[2*(py+1+px*h)]);
 		}
 	}
