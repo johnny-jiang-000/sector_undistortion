@@ -97,8 +97,8 @@ void *mesh(void* ptr){
 	//printf("id=%d,R=%.2f\n",id,data->R);
 	for(px=data->n*id;px<data->n*(id+1);px++){
 		for(py=0;py<h;py++){
-			r=data->R-data->dr*py;
-			theta=M_PI*0.5+data->amax-data->da*px;
+			r=data->R-data->dr*(py+0.5);
+			theta=M_PI*0.5+data->amax-data->da*(px+0.5);
 			//printf("r=%.3f,theta=%.3f\n",r,theta);
 			data->map[2*(py+px*h)]=r*cos(theta);
 			data->map[2*(py+px*h)+1]=r*sin(theta);

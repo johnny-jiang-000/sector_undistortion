@@ -5,9 +5,9 @@ import threading
 from timeit import default_timer as timer
 
 T=4
-w=2560
-h=1080
-l=10800
+w=32
+h=32
+l=100
 n=w/T
 
 R=np.sqrt((l+h)**2+(0.5*w)**2)
@@ -36,18 +36,31 @@ class mt_mesh(threading.Thread):
 def mesh(id):
 	for px in range(int(n*id),int(n*(1+id))):
 		for py in range(h):
-			r=R-dr*py
-			theta=np.pi*0.5+amax-da*px
+			r=R-dr*(py+0.5)
+			theta=np.pi*0.5+amax-da*(px+0.5)
 			map[py,px,0]=r*np.cos(theta)
 			map[py,px,1]=r*np.sin(theta)
 
 def st_mesh():
 	for px in range(w):
 		for py in range(h):
-			r=R-dr*py
-			theta=np.pi*0.5+amax-da*px
+			r=R-dr*(py+0.5)
+			theta=np.pi*0.5+amax-da*(px+0.5)
 			map[py,px,0]=r*np.cos(theta)
 			map[py,px,1]=r*np.sin(theta)
+
+def gl_mesh():
+	dx,dy=2.0/w,2.0/h
+	for i in range(w):
+		for j in range(h):
+			ax,ay=-1+dx*(i+0.5),-1+dy*(j+0.5)
+			px,py=0.5*w*(1+ax),0.5*h*(1+ay)
+			r=R-dr*py
+			theta=np.pi*0.5+amax-da*px
+			map[j,i,0]=r*np.cos(theta)/w_o
+			map[j,i,1]=(0.5*h_o+l-r*np.sin(theta))/(0.5*h_o)
+			print("(",map[j,i,0],",",map[j,i,1],",",ax,",",ay,",",px,",",py,")","\t")
+		print("\n")
 
 start=timer()
 
@@ -61,6 +74,7 @@ start=timer()
 #for t in thread_no:
 #	t.join()
 
+gl_mesh()
 st_mesh()
 end=timer()
 
