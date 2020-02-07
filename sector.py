@@ -9,6 +9,7 @@ w=640
 h=512
 l=512
 n=w/T
+raw=mpimg.imread('2020.01.19-01.26.png')
 
 R=np.sqrt((l+h)**2+(0.5*w)**2)
 Rmin=np.sqrt(l**2+(0.5*w)**2)
@@ -65,22 +66,23 @@ def gl_mesh():
 		print("\n")
 
 def gl_mesh2():
-	dx,dy=2.0/w,2.0/h
-	u=float(h)/w
-	l_gl=float(l)*2/w
-	R_gl=np.sqrt((l_gl+2*u)**2+1)
-	Rmin_gl=np.sqrt(l_gl**2+1)
-	dr_gl=(R_gl-Rmin_gl)/float(h)
-	h_o_gl=R_gl-l_gl
+	dx,dy=1.0/w,1.0/h
+	r_2min=Rmin**2
+	r_2max=R**2
+	theta_min=np.pi/2.0-amax
+	theta_max=np.pi/2.0+amax
 	for i in range(w):
 		for j in range(h):
-			ax,ay=-1+dx*(i+0.5),1-dy*(j+0.5)
-			r=R_gl-dr_gl*(0.5+j)
-			theta=np.pi*0.5+amax-da*(0.5+i)
-			map[j,i,0]=r*np.cos(theta)*w*0.5/w_o
-			map[j,i,1]=r*np.sin(theta)-l_gl-0.5*h_o_gl
-			print("(",map[j,i,0],",",map[j,i,1],",",ax,",",ay,",",int((map[j,i,0]+1)*w_o),",",int((1-map[j,i,1])*h_o/2.0),")","\t")
-		print("\n")
+			ax,ay=dx*i,dy*j
+			px,py=ax*w_o*2-w_o,h_o+l-ay*h_o
+			r_2=px**2+py**2
+			theta=np.arctan2(py,px+0.00001)
+			if(r_2>r_2min and r_2<r_2max and theta>theta_min and theta<theta_max):
+				coord_in=[int((np.pi/2.0+amax-theta)/da),int((R-np.sqrt(r_2))/dr)]
+				out1[j,i,:]=raw[coord_in[1],coord_in[0],:]
+				# print("dsgggs")
+			else:
+				out1[j,i,:]=(0.0,0.0,0.0,0.0)
 
 start=timer()
 
@@ -95,13 +97,13 @@ start=timer()
 #	t.join()
 
 # gl_mesh()
-# gl_mesh2()
+gl_mesh2()
 st_mesh()
 end=timer()
 
 print("p0=(",map[0,0,0],",",map[0,0,1],")","p1=(",map[h-1,w-1,0],",",map[h-1,w-1,1],")")
 
-raw=mpimg.imread('2020.01.19-01.26.png')
+
 
 for px in range(w):
     for py in range(h):
@@ -116,7 +118,7 @@ for px in range(w):
 
 fig,ax=plt.subplots(2,1)
 ax[0].imshow(raw)
-ax[1].imshow(out)
+ax[1].imshow(out1)
 plt.show()
 
 print("time elapse: ",end-start)
