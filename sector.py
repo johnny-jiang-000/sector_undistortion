@@ -5,9 +5,9 @@ import threading
 from timeit import default_timer as timer
 
 T=4
-w=32
-h=24
-l=100
+w=640
+h=512
+l=512
 n=w/T
 
 R=np.sqrt((l+h)**2+(0.5*w)**2)
@@ -22,6 +22,7 @@ print("R=",R," Rmin=",Rmin," dr=",dr," amax=",amax," da=",da)
 
 map=np.zeros((h,w,2))
 out=np.zeros((h_o,w_o*2,4))
+out1=np.zeros((h,w,4))
 
 
 
@@ -93,7 +94,7 @@ start=timer()
 #for t in thread_no:
 #	t.join()
 
-gl_mesh()
+# gl_mesh()
 # gl_mesh2()
 st_mesh()
 end=timer()
@@ -107,6 +108,9 @@ for px in range(w):
         x_o=int(map[py,px,0])
         y_o=int(map[py,px,1])
         out[y_o,x_o,:]=raw[py,px,:]
+		# x_o=int(map[py,px,0]*(0.5*w/w_o))
+		# y_o=int(map[py,px,1]*(h/h_o))
+        # out1[y_o,x_o,:]=raw[py,px,:]
 
 
 
