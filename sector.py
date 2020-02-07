@@ -7,7 +7,7 @@ from timeit import default_timer as timer
 T=4
 w=640
 h=512
-l=512
+l=512*5
 n=w/T
 raw=mpimg.imread('2020.01.19-01.26.png')
 
@@ -78,8 +78,9 @@ def gl_mesh2():
 			r_2=px**2+py**2
 			theta=np.arctan2(py,px+0.00001)
 			if(r_2>r_2min and r_2<r_2max and theta>theta_min and theta<theta_max):
-				coord_in=[int((np.pi/2.0+amax-theta)/da),int((R-np.sqrt(r_2))/dr)]
-				out1[j,i,:]=raw[coord_in[1],coord_in[0],:]
+				coord_in=[(np.pi/2.0+amax-theta)/da,(R-np.sqrt(r_2))/dr]
+				# print("(",coord_in[0]/w,",",coord_in[1]/h,")")
+				out1[j,i,:]=raw[int(coord_in[1]),int(coord_in[0]),:]
 				# print("dsgggs")
 			else:
 				out1[j,i,:]=(0.0,0.0,0.0,0.0)
