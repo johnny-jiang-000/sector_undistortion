@@ -1,12 +1,18 @@
 import cv2
 import numpy as np
+import threading
+import time
 
-ROW=1080
-COL=1920
+ROW=720
+COL=1280
+hCOL=COL/2
 
+gamma=5.0
 w=640
 h=512
-l=h*5
+l=h*gamma
+
+boundary=[[0,w,ROW-h,ROW],[COL-w,COL,ROW-h,ROW]]
 
 R=np.sqrt((l+h)**2+(0.5*w)**2)
 Rmin=np.sqrt(l**2+(0.5*w)**2)
@@ -16,6 +22,9 @@ h_o=int(R-l)
 amax=np.arctan((0.5*w)/float(l))
 da=amax/float(0.5*w)
 
+coeff=[R,Rmin,dr,w_o,h_o,amax,da,gamma]
+
+
 print("R=",R," Rmin=",Rmin," dr=",dr," amax=",amax," da=",da)
 map=np.zeros((h,w,2))
 map_x,map_y=np.full((h,w),-1,dtype=np.float32),np.full((h,w),-1,dtype=np.float32)
@@ -23,16 +32,30 @@ output = np.zeros((h,w,3), dtype=np.uint8)
 dual_out = np.zeros((ROW,COL,3), dtype=np.uint8)
 offset=[[0,0],[0,0]]
 
+
+def recalc():
+    l=h*coeff[7]
+    coeff[0]=np.sqrt((l+h)**2+(0.5*w)**2)
+    coeff[1]=np.sqrt(l**2+(0.5*w)**2)
+    coeff[2]=(coeff[0]-coeff[1])/float(h)
+    coeff[3]=int(0.5*w*coeff[0]/np.sqrt((0.5*w)**2+l**2))
+    coeff[4]=int(coeff[0]-l)
+    coeff[5]=np.arctan((0.5*w)/float(l))
+    coeff[6]=coeff[5]/float(0.5*w)
+
 def st_mesh():
+    l=h*coeff[7]
     for px in range(w):
         for py in range(h):
-            r=R-dr*py
-            theta=np.pi*0.5+amax-da*px
-            x=(r*np.cos(theta)+w_o)*w/(2.0*w_o)
-            y=(h_o+l-r*np.sin(theta))*h/h_o
+            # map_x[py,px]=-1
+            # map_y[py,px]=-1
+            r=coeff[0]-coeff[2]*py
+            theta=np.pi*0.5+coeff[5]-coeff[6]*px
+            x=(r*np.cos(theta)+coeff[3])*w/(2.0*coeff[3])
+            y=(coeff[4]+l-r*np.sin(theta))*h/coeff[4]
             map_x[int(y),int(x)]=px
             map_y[int(y),int(x)]=py
-            
+
 # def gl_mesh2():
 #     dx,dy=1.0/w,1.0/h
 #     r_2min=Rmin**2
@@ -61,12 +84,19 @@ def st_mesh():
 
 
 def concat(inmat,outmat,offset):
-    Lx0,Lx1,Ly0,Ly1=offset[0][0],w+offset[0][0],ROW-h+offset[0][1],ROW+offset[0][1]
-    Rx0,Rx1,Ry0,Ry1=COL-w+offset[1][0],COL+offset[1][0],ROW-h+offset[1][1],ROW+offset[1][1]
+    if(offset[0][0]>0 and offset[0][0]<hCOL-w):
+        boundary[0][0],boundary[0][1]=offset[0][0],w+offset[0][0]
+    if(offset[0][1]<0 and offset[0][1]>h-ROW):
+        boundary[0][2],boundary[0][3]=ROW-h+offset[0][1],ROW+offset[0][1]
+    if(offset[1][0]<0 and offset[1][0]>w-hCOL):
+        boundary[1][0],boundary[1][1]=COL-w+offset[1][0],COL+offset[1][0]
+    if(offset[1][1]<0 and offset[1][1]>h-ROW):
+        boundary[1][2],boundary[1][3]=ROW-h+offset[1][1],ROW+offset[1][1]
 
 
-    outmat[Ly0:Ly1,Lx0:Lx1,:]=inmat
-    outmat[Ry0:Ry1,Rx0:Rx1,:]=inmat
+
+    outmat[boundary[0][2]:boundary[0][3],boundary[0][0]:boundary[0][1],:]=inmat
+    outmat[boundary[1][2]:boundary[1][3],boundary[1][0]:boundary[1][1],:]=inmat
     # outmat[567:1079,0:640,:]=inmat
 
 
@@ -77,6 +107,7 @@ st_mesh()
 
 # cv2.namedWindow("overlay", cv2.WND_PROP_FULLSCREEN)
 # cv2.setWindowProperty("overlay",cv2.WND_PROP_FULLSCREEN,cv2.WINDOW_FULLSCREEN)
+
 
 while True:
     _,cam_img=cam.read()
@@ -108,6 +139,16 @@ while True:
             offset[1][1]+=1
         elif keypress==ord('l'):
             offset[1][0]+=1
+        elif keypress==ord('9'):
+            coeff[7]+=0.1
+            map_x,map_y=np.full((h,w),-1,dtype=np.float32),np.full((h,w),-1,dtype=np.float32)
+            recalc()
+            st_mesh()
+        elif keypress==ord('0'):
+            coeff[7]-=0.1
+            map_x,map_y=np.full((h,w),-1,dtype=np.float32),np.full((h,w),-1,dtype=np.float32)
+            recalc()
+            st_mesh()
         else:
             continue
                     

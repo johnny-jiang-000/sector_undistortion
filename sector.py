@@ -34,7 +34,6 @@ class mt_mesh(threading.Thread):
 	def run(self):
 		mesh(self.id)
 
-
 def mesh(id):
 	for px in range(int(n*id),int(n*(1+id))):
 		for py in range(h):
