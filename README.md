@@ -7,5 +7,5 @@
 - overlay.py is a simple program to simulate undistortion effect under DART-MX8M (distortion algorithm on DART is solely runinng on GPU and fully optimized so it will be much much much (>100x) faster than this crap simulator)
 - how to use? 
 > install python 3.7
-> run "pip install opencv-python" in CMD to install opencv
-> connect camera and run "python overlay.py" in CMD
+> - run "pip install opencv-python" in CMD to install opencv
+> - connect camera and run "python overlay.py" in CMD
