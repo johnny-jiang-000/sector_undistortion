@@ -9,3 +9,6 @@
 > install python 3.7
 > - run "pip install opencv-python" in CMD to install opencv
 > - connect camera and run "python overlay.py" in CMD
+- control ?
+> - wasd/ijkl : left/right eye frame position offset 
+> - 9/0 : undistortion coefficient +/-

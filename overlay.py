@@ -3,8 +3,8 @@ import numpy as np
 import threading
 import time
 
-ROW=720
-COL=1280
+ROW=1080
+COL=1920
 hCOL=COL/2
 
 gamma=5.0
@@ -32,7 +32,10 @@ output = np.zeros((h,w,3), dtype=np.uint8)
 dual_out = np.zeros((ROW,COL,3), dtype=np.uint8)
 offset=[[0,0],[0,0]]
 
-
+H0=np.transpose(np.array([[0.6481,0.1404,0.0],[-0.0334,0.6719,0.0],[120.5052,11.6071,1.0000]]))
+H1=np.transpose(np.array([[0.9478,0.0738,0.0000],[0.0121,0.8910,0.0],[15.9848,79.9388,1.0000]]))
+H2=np.transpose(np.array([[0.6796,-0.0258,0.0000],[0.0137,0.7180,0.0],[135.4070,86.5596,1.0000]]))
+I=np.array([[1.0,0.0,0.0],[0.0,1.,0.],[0.,0.,1.]])
 def recalc():
     l=h*coeff[7]
     coeff[0]=np.sqrt((l+h)**2+(0.5*w)**2)
@@ -108,47 +111,81 @@ st_mesh()
 # cv2.namedWindow("overlay", cv2.WND_PROP_FULLSCREEN)
 # cv2.setWindowProperty("overlay",cv2.WND_PROP_FULLSCREEN,cv2.WINDOW_FULLSCREEN)
 
-
+H=I
+scale=1.0
 while True:
     _,cam_img=cam.read()
-    output=cv2.remap(cam_img,map_x,map_y,interpolation=cv2.INTER_LINEAR)
+    x,y=int(w/scale),int(h/scale)
+    lx,ly=int((w-x)/2),int((h-y)/2)
+    # print(lx,ly,x,y)
+    scaled=cv2.resize(cam_img[ly:ly+y,lx:lx+x,:],(640,512))
+    homo=cv2.warpPerspective(scaled,H,(640, 512))
+    fliped=cv2.flip(homo,1)
+    output=cv2.remap(fliped,map_x,map_y,interpolation=cv2.INTER_LINEAR)
     # remap(cam_img,output,map)
     concat(output,dual_out,offset)
-
+    
     cv2.imshow('overlay',dual_out)
     
     keypress=cv2.waitKey(1) & 0xFF
     
     if(keypress-255!=0):
-        if keypress==ord(' '):
+        if keypress==27:
             break
+        elif keypress==ord(' '):
+            # cv2.imwrite('capture.png',cam_img[16:496,:,:])
+            cv2.imwrite('capture.png',cam_img)
         elif keypress==ord('w'):
-            offset[0][1]-=1
+            offset[0][1]-=10
+            print("offset=(", offset[0][0],",", offset[0][1], offset[1][0],",", offset[1][1],")")
         elif keypress==ord('a'):
-            offset[0][0]-=1
+            offset[0][0]-=10
+            print("offset=(", offset[0][0],",", offset[0][1], offset[1][0],",", offset[1][1],")")
         elif keypress==ord('s'):
-            offset[0][1]+=1
+            offset[0][1]+=10
+            print("offset=(", offset[0][0],",", offset[0][1], offset[1][0],",", offset[1][1],")")
         elif keypress==ord('d'):
-            offset[0][0]+=1
+            offset[0][0]+=10
+            print("offset=(", offset[0][0],",", offset[0][1], offset[1][0],",", offset[1][1],")")
 
         elif keypress==ord('i'):
-            offset[1][1]-=1
+            offset[1][1]-=10
+            print("offset=(", offset[0][0],",", offset[0][1], offset[1][0],",", offset[1][1],")")
         elif keypress==ord('j'):
-            offset[1][0]-=1
+            offset[1][0]-=10
+            print("offset=(", offset[0][0],",", offset[0][1], offset[1][0],",", offset[1][1],")")
         elif keypress==ord('k'):
-            offset[1][1]+=1
+            offset[1][1]+=10
+            print("offset=(", offset[0][0],",", offset[0][1], offset[1][0],",", offset[1][1],")")
         elif keypress==ord('l'):
-            offset[1][0]+=1
+            offset[1][0]+=10
+            print("offset=(", offset[0][0],",", offset[0][1], offset[1][0],",", offset[1][1],")")
         elif keypress==ord('9'):
-            coeff[7]+=0.1
+            coeff[7]+=0.3
             map_x,map_y=np.full((h,w),-1,dtype=np.float32),np.full((h,w),-1,dtype=np.float32)
             recalc()
             st_mesh()
+            print("coeff=",coeff[7])
         elif keypress==ord('0'):
-            coeff[7]-=0.1
+            coeff[7]-=0.3
             map_x,map_y=np.full((h,w),-1,dtype=np.float32),np.full((h,w),-1,dtype=np.float32)
             recalc()
             st_mesh()
+            print("coeff=",coeff[7])
+        elif keypress==ord('1'):
+            H=H0
+        elif keypress==ord('2'):
+            H=H1    
+        elif keypress==ord('3'):
+            H=H2
+        elif keypress==ord('4'):
+            H=I
+        elif keypress==ord('z'):
+            scale+=0.02
+            print("scale=",scale)
+        elif keypress==ord('x'):
+            scale-=0.02   
+            print("scale=",scale)
         else:
             continue
                     
