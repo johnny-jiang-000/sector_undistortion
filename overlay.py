@@ -30,7 +30,7 @@ map=np.zeros((h,w,2))
 map_x,map_y=np.full((h,w),-1,dtype=np.float32),np.full((h,w),-1,dtype=np.float32)
 output = np.zeros((h,w,3), dtype=np.uint8)
 dual_out = np.zeros((ROW,COL,3), dtype=np.uint8)
-offset=[[0,0],[0,0]]
+offset=[[300,-80],[-300,-80]]
 
 H0=np.transpose(np.array([[0.6481,0.1404,0.0],[-0.0334,0.6719,0.0],[120.5052,11.6071,1.0000]]))
 H1=np.transpose(np.array([[0.9478,0.0738,0.0000],[0.0121,0.8910,0.0],[15.9848,79.9388,1.0000]]))
@@ -103,8 +103,8 @@ def concat(inmat,outmat,offset):
     # outmat[567:1079,0:640,:]=inmat
 
 
-cam=cv2.VideoCapture(0)
-# cam=cv2.VideoCapture('My_Capture.avi')
+# cam=cv2.VideoCapture(0)
+cam=cv2.VideoCapture('C:/Users/autor/Desktop/matlab to opencv_cuda/Project1/Project1/My_Capture.avi')
 # gl_mesh2()
 st_mesh()
 
@@ -137,28 +137,36 @@ while True:
             cv2.imwrite('capture.png',cam_img)
         elif keypress==ord('w'):
             offset[0][1]-=10
+            dual_out=np.zeros((ROW,COL,3), dtype=np.uint8)
             print("offset=(", offset[0][0],",", offset[0][1], offset[1][0],",", offset[1][1],")")
         elif keypress==ord('a'):
             offset[0][0]-=10
+            dual_out=np.zeros((ROW,COL,3), dtype=np.uint8)
             print("offset=(", offset[0][0],",", offset[0][1], offset[1][0],",", offset[1][1],")")
         elif keypress==ord('s'):
             offset[0][1]+=10
+            dual_out=np.zeros((ROW,COL,3), dtype=np.uint8)
             print("offset=(", offset[0][0],",", offset[0][1], offset[1][0],",", offset[1][1],")")
         elif keypress==ord('d'):
             offset[0][0]+=10
+            dual_out=np.zeros((ROW,COL,3), dtype=np.uint8)
             print("offset=(", offset[0][0],",", offset[0][1], offset[1][0],",", offset[1][1],")")
 
         elif keypress==ord('i'):
             offset[1][1]-=10
+            dual_out=np.zeros((ROW,COL,3), dtype=np.uint8)
             print("offset=(", offset[0][0],",", offset[0][1], offset[1][0],",", offset[1][1],")")
         elif keypress==ord('j'):
             offset[1][0]-=10
+            dual_out=np.zeros((ROW,COL,3), dtype=np.uint8)
             print("offset=(", offset[0][0],",", offset[0][1], offset[1][0],",", offset[1][1],")")
         elif keypress==ord('k'):
             offset[1][1]+=10
+            dual_out=np.zeros((ROW,COL,3), dtype=np.uint8)
             print("offset=(", offset[0][0],",", offset[0][1], offset[1][0],",", offset[1][1],")")
         elif keypress==ord('l'):
             offset[1][0]+=10
+            dual_out=np.zeros((ROW,COL,3), dtype=np.uint8)
             print("offset=(", offset[0][0],",", offset[0][1], offset[1][0],",", offset[1][1],")")
         elif keypress==ord('9'):
             coeff[7]+=0.3
